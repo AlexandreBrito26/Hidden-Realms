@@ -152,8 +152,8 @@ export const levels: Level[] = [
     title: 'Estação Espacial',
     bg: [0x05010f, 0x1a0b3b],
     scenery: 'space',
-    decoyCount: 30,
-    decoys: ['⭐', '🌟', '💫', '🌑', '🪐', '🛰️', '🌌', '🔧'],
+    decoyCount: 22,
+    decoys: ['⭐', '🌟', '💫', '🌑', '🪐', '🛰️', '🌌'],
     ambient: { emoji: '✨', dir: 'up', count: 10 },
     targets: [
       {

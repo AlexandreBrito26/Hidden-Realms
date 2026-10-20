@@ -238,33 +238,67 @@ function drawSpace(scene: Phaser.Scene) {
 
   // nebulosas (camadas translúcidas)
   for (const [x, y, r, c] of [
-    [160, 200, 200, 0x6a2c91],
-    [570, 150, 170, 0x1d4e89],
-    [420, 440, 230, 0x8e2a6a],
-    [110, 520, 160, 0x2a4d9b],
+    [160, 200, 210, 0x6a2c91],
+    [590, 140, 180, 0x1d4e89],
+    [420, 450, 240, 0x8e2a6a],
+    [110, 520, 170, 0x2a4d9b],
+    [330, 90, 150, 0x3b1d6e],
   ]) {
-    for (let k = 4; k >= 1; k--) {
-      g.fillStyle(c, 0.06)
-      g.fillCircle(x, y, (r * k) / 4)
+    for (let k = 6; k >= 1; k--) {
+      g.fillStyle(c, 0.045)
+      g.fillCircle(x, y, (r * k) / 6)
     }
   }
 
-  // estrelas
+  // estrelas fixas, algumas com cruz de brilho
   for (let i = 0; i < 230; i++) {
+    const sx = rand() * W
+    const sy = rand() * 620
+    const big = rand() < 0.08
     g.fillStyle(0xffffff, 0.35 + rand() * 0.65)
-    g.fillCircle(rand() * W, rand() * 620, rand() < 0.1 ? 2 : 1)
+    g.fillCircle(sx, sy, big ? 2 : 1)
+    if (big) {
+      g.lineStyle(1, 0xffffff, 0.35)
+      g.lineBetween(sx - 6, sy, sx + 6, sy)
+      g.lineBetween(sx, sy - 6, sx, sy + 6)
+    }
+  }
+  // estrelas que piscam
+  for (let i = 0; i < 26; i++) {
+    const star = scene.add.circle(40 + rand() * (W - 80), 60 + rand() * 540, 1.6 + rand() * 1.2, 0xffffff, 0.9)
+    scene.tweens.add({
+      targets: star,
+      alpha: 0.1,
+      duration: 600 + rand() * 1600,
+      delay: rand() * 1500,
+      yoyo: true,
+      repeat: -1,
+    })
   }
 
-  // planeta com anel: metade de trás do anel, planeta, metade da frente
+  // Terra distante com halo
+  g.fillStyle(0x4aa3d9, 0.1)
+  g.fillCircle(330, 140, 52)
+  g.fillStyle(0x4aa3d9, 0.14)
+  g.fillCircle(330, 140, 38)
+  prop(scene, 330, 140, '🌍', 52, 0.95)
+
+  // planeta com atmosfera e anel: metade de trás do anel, planeta, metade da frente
   const px = 530
   const py = 410
-  const ring = (from: number, to: number) => {
+  const ring = (rx: number, ry: number, from: number, to: number) => {
     const pts: Phaser.Types.Math.Vector2Like[] = []
-    for (let t = from; t <= to; t += 0.08) pts.push({ x: px + 175 * Math.cos(t), y: py + 36 * Math.sin(t) })
+    for (let t = from; t <= to; t += 0.08) pts.push({ x: px + rx * Math.cos(t), y: py + ry * Math.sin(t) })
     return pts
   }
+  for (const [r, a] of [[160, 0.05], [138, 0.08], [122, 0.12]]) {
+    g.fillStyle(0xffb18a, a)
+    g.fillCircle(px, py, r)
+  }
   g.lineStyle(9, 0xf2cc8f, 0.8)
-  g.strokePoints(ring(Math.PI, Math.PI * 2), false)
+  g.strokePoints(ring(175, 36, Math.PI, Math.PI * 2), false)
+  g.lineStyle(3, 0xd9a86c, 0.7)
+  g.strokePoints(ring(192, 42, Math.PI, Math.PI * 2), false)
 
   g.fillStyle(0xe07a5f, 1)
   g.fillCircle(px, py, 108)
@@ -273,64 +307,203 @@ function drawSpace(scene: Phaser.Scene) {
   maskG.fillStyle(0xffffff, 1)
   maskG.fillCircle(px, py, 108)
   bands.setMask(maskG.createGeometryMask())
-  for (const [dy, h, c] of [[-70, 26, 0xf4a261], [-20, 20, 0xc9563b], [24, 30, 0xf2cc8f], [72, 24, 0xb5442e]]) {
+  for (const [dy, h, c] of [[-80, 18, 0xf4a261], [-60, 30, 0xc9563b], [-18, 22, 0xf2cc8f], [20, 34, 0xb5442e], [66, 22, 0xf4a261], [92, 20, 0xc9563b]]) {
     bands.fillStyle(c, 0.9)
     bands.fillRect(px - 110, py + dy, 220, h)
   }
-  bands.fillStyle(0x000000, 0.35) // sombra do lado oposto à luz
-  bands.fillCircle(px + 60, py + 20, 108)
+  // tempestade (olho do planeta)
+  bands.fillStyle(0xfff0d6, 0.55)
+  bands.fillEllipse(px - 38, py + 38, 40, 22)
+  bands.fillStyle(0xb5442e, 0.8)
+  bands.fillEllipse(px - 38, py + 38, 20, 11)
+  // sombra do lado oposto à luz + brilho do lado iluminado
+  bands.fillStyle(0x000000, 0.38)
+  bands.fillCircle(px + 62, py + 22, 108)
+  bands.fillStyle(0xffffff, 0.08)
+  bands.fillCircle(px - 54, py - 50, 52)
 
-  g.lineStyle(9, 0xf2cc8f, 0.85)
-  g.strokePoints(ring(0, Math.PI), false)
+  g.lineStyle(9, 0xf2cc8f, 0.88)
+  g.strokePoints(ring(175, 36, 0, Math.PI), false)
+  g.lineStyle(3, 0xd9a86c, 0.75)
+  g.strokePoints(ring(192, 42, 0, Math.PI), false)
 
   // luazinha
   g.fillStyle(0xcfd2d6, 1)
-  g.fillCircle(150, 380, 26)
+  g.fillCircle(150, 390, 26)
   g.fillStyle(0x9aa0a8, 1)
-  g.fillCircle(142, 372, 6)
-  g.fillCircle(158, 392, 5)
+  g.fillCircle(142, 382, 6)
+  g.fillCircle(158, 402, 5)
+  g.fillCircle(160, 380, 3)
+  g.fillStyle(0x000000, 0.25)
+  g.fillCircle(160, 398, 26)
 
-  // moldura da estação: a vista é uma janela grande
-  g.fillStyle(0x1b2233, 1)
-  g.fillRect(0, 0, W, 60)
-  g.fillRect(0, 0, 40, 640)
-  g.fillRect(W - 40, 0, 40, 640)
-  g.lineStyle(6, 0x5c6b8a, 1)
-  g.strokeRect(40, 60, W - 80, 560)
-  g.lineStyle(14, 0x2a3350, 1)
-  g.lineBetween(240, 60, 240, 620)
-  g.lineBetween(480, 60, 480, 620)
-  g.fillStyle(0x8a97b8, 1)
-  for (const x of [20, W - 20]) for (let y = 40; y < 620; y += 90) g.fillCircle(x, y, 4)
-  for (let x = 40; x < W; x += 90) g.fillCircle(x, 30, 4)
+  // treliça da estação e painel solar na parte de baixo da janela
+  g.lineStyle(4, 0x6b7a99, 1)
+  g.lineBetween(40, 586, 470, 586)
+  g.lineBetween(40, 614, 470, 614)
+  g.lineStyle(2, 0x56637f, 1)
+  for (let x = 40; x < 470; x += 28) {
+    g.lineBetween(x, 614, x + 14, 586)
+    g.lineBetween(x + 14, 586, x + 28, 614)
+  }
+  g.lineStyle(4, 0x6b7a99, 1)
+  g.lineBetween(470, 600, 490, 600)
+  g.fillStyle(0x1d3a78, 1)
+  g.fillRect(490, 566, 190, 48)
+  g.lineStyle(1, 0x7fb2ff, 0.5)
+  for (let x = 490; x <= 680; x += 24) g.lineBetween(x, 566, x, 614)
+  for (let y = 566; y <= 614; y += 16) g.lineBetween(490, y, 680, y)
+  g.lineStyle(3, 0x9fb3d9, 1)
+  g.strokeRect(490, 566, 190, 48)
+  g.fillStyle(0xffffff, 0.12)
+  g.fillPoints([{ x: 520, y: 566 }, { x: 560, y: 566 }, { x: 530, y: 614 }, { x: 490, y: 614 }], true)
+
+  // ---- moldura da estação (criada depois, por cima do que fica visível na janela)
+  const f = scene.add.graphics()
+
+  // vinheta e reflexos do vidro
+  f.fillGradientStyle(0x000000, 0x000000, 0x000000, 0x000000, 0.55, 0.55, 0, 0)
+  f.fillRect(40, 60, W - 80, 120)
+  f.fillGradientStyle(0x000000, 0x000000, 0x000000, 0x000000, 0, 0, 0.5, 0.5)
+  f.fillRect(40, 520, W - 80, 100)
+  f.fillStyle(0xffffff, 0.035)
+  f.fillPoints([{ x: 300, y: 60 }, { x: 360, y: 60 }, { x: 220, y: 620 }, { x: 160, y: 620 }], true)
+  f.fillPoints([{ x: 385, y: 60 }, { x: 405, y: 60 }, { x: 325, y: 620 }, { x: 305, y: 620 }], true)
+
+  // barras e pilares
+  f.fillStyle(0x1b2233, 1)
+  f.fillRect(0, 0, W, 60)
+  f.fillRect(0, 0, 40, 640)
+  f.fillRect(W - 40, 0, 40, 640)
+  f.lineStyle(6, 0x5c6b8a, 1)
+  f.strokeRect(40, 60, W - 80, 560)
+  f.lineStyle(14, 0x2a3350, 1)
+  f.lineBetween(240, 60, 240, 620)
+  f.lineBetween(480, 60, 480, 620)
+  f.lineStyle(2, 0x6b7a99, 0.8)
+  f.lineBetween(236, 60, 236, 620)
+  f.lineBetween(476, 60, 476, 620)
+
+  // teto: tubulações, suportes e faixa de alerta
+  f.fillStyle(0x3a4666, 1)
+  f.fillRect(0, 8, W, 10)
+  f.fillStyle(0x56637f, 1)
+  f.fillRect(0, 9, W, 3)
+  f.fillStyle(0x2f3a58, 1)
+  f.fillRect(0, 28, W, 8)
+  f.fillStyle(0x151a28, 1)
+  for (let x = 30; x < W; x += 120) f.fillRect(x, 4, 10, 36)
+  f.fillStyle(0x151a28, 1)
+  f.fillRect(0, 48, W, 12)
+  f.fillStyle(0xf2c14e, 0.9)
+  for (let x = 0; x < W; x += 24) {
+    f.fillPoints([{ x, y: 60 }, { x: x + 12, y: 60 }, { x: x + 24, y: 48 }, { x: x + 12, y: 48 }], true)
+  }
+
+  // pilares laterais: placas, rebites e aberturas de ventilação
+  f.lineStyle(2, 0x2f3a58, 1)
+  for (const x0 of [0, W - 40]) {
+    for (let y = 60; y < 620; y += 70) f.strokeRect(x0 + 4, y + 4, 32, 62)
+    for (let k = 0; k < 4; k++) f.lineBetween(x0 + 10, 470 + k * 8, x0 + 30, 470 + k * 8)
+  }
+  f.fillStyle(0x8a97b8, 1)
+  for (const x of [20, W - 20]) for (let y = 40; y < 620; y += 90) f.fillCircle(x, y, 4)
+  for (let x = 40; x < W; x += 90) f.fillCircle(x, 30, 4)
+
+  // cabos pendurados
+  f.lineStyle(4, 0x0d1018, 1)
+  for (const x0 of [120, 300, 640]) {
+    const pts: Phaser.Types.Math.Vector2Like[] = []
+    for (let t = 0; t <= 1.001; t += 0.1) pts.push({ x: x0 + t * 36, y: 60 + Math.sin(t * Math.PI) * 38 + t * 10 })
+    f.strokePoints(pts, false)
+    f.fillStyle(0x6b7a99, 1)
+    f.fillRect(x0 + 32, 104, 10, 12)
+  }
+
+  // luz de alerta piscando no teto
+  const beaconGlow = scene.add.circle(W / 2, 30, 30, 0xff3b30, 0.2)
+  scene.add.circle(W / 2, 30, 8, 0xff3b30, 1)
+  scene.tweens.add({ targets: beaconGlow, alpha: 0.03, scale: 1.6, duration: 900, yoyo: true, repeat: -1 })
 
   // painel de controle
-  g.fillGradientStyle(0x2a3350, 0x2a3350, 0x10141f, 0x10141f, 1)
-  g.fillRect(0, 620, W, H - 620)
-  g.fillStyle(0x5c6b8a, 1)
-  g.fillRect(0, 616, W, 10)
-  g.fillStyle(0x39ff88, 0.18)
-  g.fillRect(50, 690, 190, 110)
-  g.fillStyle(0x4ac3ff, 0.18)
-  g.fillRect(490, 690, 190, 110)
-  g.lineStyle(4, 0x5c6b8a, 1)
-  g.strokeRect(50, 690, 190, 110)
-  g.strokeRect(490, 690, 190, 110)
-  g.lineStyle(2, 0x39ff88, 0.5)
-  for (let i = 0; i < 6; i++) g.lineBetween(62, 706 + i * 16, 62 + 40 + rand() * 120, 706 + i * 16)
-  g.lineStyle(2, 0x4ac3ff, 0.5)
-  g.lineBetween(500, 780, 540, 740)
-  g.lineBetween(540, 740, 580, 765)
-  g.lineBetween(580, 765, 620, 715)
-  g.lineBetween(620, 715, 668, 735)
+  f.fillGradientStyle(0x2a3350, 0x2a3350, 0x10141f, 0x10141f, 1)
+  f.fillRect(0, 620, W, H - 620)
+  f.fillStyle(0x5c6b8a, 1)
+  f.fillRect(0, 616, W, 10)
+  const strip = scene.add.rectangle(W / 2, 632, W, 4, 0x4ac3ff, 0.7)
+  scene.tweens.add({ targets: strip, alpha: 0.2, duration: 1800, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' })
+
+  // telas laterais com barras animadas
+  f.fillStyle(0x39ff88, 0.16)
+  f.fillRect(50, 690, 190, 110)
+  f.fillStyle(0x4ac3ff, 0.16)
+  f.fillRect(490, 690, 190, 110)
+  f.lineStyle(4, 0x5c6b8a, 1)
+  f.strokeRect(50, 690, 190, 110)
+  f.strokeRect(490, 690, 190, 110)
+  f.lineStyle(1, 0x000000, 0.18)
+  for (let y = 692; y < 800; y += 6) {
+    f.lineBetween(52, y, 238, y)
+    f.lineBetween(492, y, 678, y)
+  }
+  for (let i = 0; i < 6; i++) {
+    const bar = scene.add.rectangle(62, 706 + i * 16, 40 + rand() * 120, 5, 0x39ff88, 0.7).setOrigin(0, 0.5)
+    scene.tweens.add({
+      targets: bar,
+      scaleX: 0.3 + rand() * 0.3,
+      duration: 800 + rand() * 1400,
+      delay: rand() * 600,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    })
+  }
+  f.lineStyle(2, 0x4ac3ff, 0.6)
+  f.lineBetween(500, 780, 540, 740)
+  f.lineBetween(540, 740, 580, 765)
+  f.lineBetween(580, 765, 620, 715)
+  f.lineBetween(620, 715, 668, 735)
+  const blip = scene.add.circle(668, 735, 4, 0xffffff, 1)
+  scene.tweens.add({ targets: blip, alpha: 0.1, scale: 2, duration: 700, yoyo: true, repeat: -1 })
+
+  // bancada central inclinada com teclado, alavanca e controle deslizante
+  f.fillStyle(0x1c2438, 1)
+  f.fillPoints([{ x: 170, y: 680 }, { x: 550, y: 680 }, { x: 610, y: 872 }, { x: 110, y: 872 }], true)
+  f.lineStyle(3, 0x5c6b8a, 1)
+  f.strokePoints([{ x: 170, y: 680 }, { x: 550, y: 680 }, { x: 610, y: 872 }, { x: 110, y: 872 }], true)
+  for (let r = 0; r < 3; r++) {
+    for (let c = 0; c < 14; c++) {
+      const lit = rand() < 0.16
+      f.fillStyle(lit ? [0x39ff88, 0x4ac3ff, 0xffd54a][Math.floor(rand() * 3)] : 0x2b3550, lit ? 0.85 : 1)
+      f.fillRect(178 + c * 26 + r * 2, 808 + r * 18, 22, 13)
+    }
+  }
+  f.fillStyle(0x0a0d14, 1)
+  f.fillCircle(206, 742, 17)
+  f.fillStyle(0x8a97b8, 1)
+  f.fillRect(202, 708, 8, 34)
+  f.fillStyle(0xff5252, 1)
+  f.fillCircle(206, 706, 10)
+  f.fillStyle(0x0a0d14, 1)
+  f.fillRect(500, 736, 70, 8)
+  f.fillStyle(0xffd54a, 1)
+  f.fillRect(528, 728, 14, 24)
+
+  // encostos das poltronas em primeiro plano
+  f.fillStyle(0x080a11, 1)
+  f.fillRoundedRect(30, 828, 130, 110, 28)
+  f.fillRoundedRect(560, 828, 130, 110, 28)
+  f.lineStyle(3, 0x2a3350, 1)
+  f.strokeRoundedRect(30, 828, 130, 110, 28)
+  f.strokeRoundedRect(560, 828, 130, 110, 28)
 
   // botões piscando
   const colors = [0xff5252, 0xffd54a, 0x39ff88, 0x4ac3ff]
   for (let i = 0; i < 16; i++) {
     const bx = 70 + i * 40
-    const by = 645 + (i % 2) * 22
-    g.fillStyle(0x0a0d14, 1)
-    g.fillCircle(bx, by, 9)
+    const by = 650 + (i % 2) * 20
+    f.fillStyle(0x0a0d14, 1)
+    f.fillCircle(bx, by, 9)
     const led = scene.add.circle(bx, by, 6, colors[i % 4], 1)
     scene.tweens.add({
       targets: led,
@@ -341,4 +514,29 @@ function drawSpace(scene: Phaser.Scene) {
       repeat: -1,
     })
   }
+
+  // estrela cadente de tempos em tempos, só dentro da janela
+  const m = scene.make.graphics({}, false)
+  m.fillStyle(0xffffff, 1)
+  m.fillRect(40, 60, W - 80, 560)
+  const winMask = m.createGeometryMask()
+  scene.time.addEvent({
+    delay: 3600,
+    loop: true,
+    callback: () => {
+      const x0 = 70 + Math.random() * 320
+      const y0 = 90 + Math.random() * 170
+      const streak = scene.add.line(0, 0, 0, 0, -70, -26, 0xffffff, 0.95).setOrigin(0, 0).setLineWidth(2)
+      streak.setPosition(x0, y0).setMask(winMask)
+      scene.tweens.add({
+        targets: streak,
+        x: x0 + 280,
+        y: y0 + 100,
+        alpha: 0,
+        duration: 700,
+        ease: 'Quad.easeIn',
+        onComplete: () => streak.destroy(),
+      })
+    },
+  })
 }
