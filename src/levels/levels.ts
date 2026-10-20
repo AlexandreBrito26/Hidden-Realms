@@ -38,7 +38,7 @@ export interface Level {
   decoys: string[]
   ambient?: Ambient
   /** cenário desenhado por código (veja game/scenery.ts) */
-  scenery?: 'attic'
+  scenery?: 'attic' | 'garden' | 'space'
   /** quantidade de emojis de ruído espalhados (padrão 70) */
   decoyCount?: number
 }
@@ -82,16 +82,36 @@ export const levels: Level[] = [
   {
     id: 2,
     title: 'Jardim Encantado',
-    bg: [0x134e5e, 0x71b280],
+    bg: [0x8ecae6, 0xd8f3dc],
+    scenery: 'garden',
+    decoyCount: 40,
     decoys: ['🌿', '🍃', '🌱', '🪨', '🍀', '🌾', '🌷', '🍂'],
     ambient: { emoji: '🍃', dir: 'down', count: 12 },
     targets: [
-      { id: 'borboleta', name: 'Borboleta', emoji: '🦋', x: 0.84, y: 0.18, size: 30 },
-      { id: 'abelha', name: 'Abelha', emoji: '🐝', x: 0.2, y: 0.3, size: 28 },
-      { id: 'morango', name: 'Morango', emoji: '🍓', x: 0.55, y: 0.5, size: 30 },
-      { id: 'joaninha', name: 'Joaninha', emoji: '🐞', x: 0.12, y: 0.62, size: 26 },
-      { id: 'girassol', name: 'Girassol', emoji: '🌻', x: 0.78, y: 0.74, size: 32 },
-      { id: 'sapo', name: 'Sapo', emoji: '🐸', x: 0.42, y: 0.88, size: 30 },
+      {
+        id: 'borboleta', name: 'Borboleta', emoji: '🦋', x: 0.84, y: 0.18, size: 30,
+        cover: { emoji: '🍃', size: 60, dx: -34, dy: 6 },
+      },
+      {
+        id: 'abelha', name: 'Abelha', emoji: '🐝', x: 0.2, y: 0.3, size: 28,
+        cover: { emoji: '🌿', size: 64, dx: 36, dy: 4 },
+      },
+      {
+        id: 'morango', name: 'Morango', emoji: '🍓', x: 0.55, y: 0.5, size: 30,
+        cover: { emoji: '🍃', size: 66, dx: 4, dy: -36 },
+      },
+      {
+        id: 'joaninha', name: 'Joaninha', emoji: '🐞', x: 0.12, y: 0.62, size: 26,
+        cover: { emoji: '🍄', size: 60, dx: 34, dy: 6 },
+      },
+      {
+        id: 'girassol', name: 'Girassol', emoji: '🌻', x: 0.78, y: 0.74, size: 32,
+        cover: { emoji: '🌿', size: 76, dx: -38, dy: 8 },
+      },
+      {
+        id: 'sapo', name: 'Sapo', emoji: '🐸', x: 0.42, y: 0.88, size: 30,
+        cover: { emoji: '🌿', size: 72, dx: 36, dy: 6 },
+      },
     ],
   },
   {
@@ -124,6 +144,41 @@ export const levels: Level[] = [
       {
         id: 'concha', name: 'Concha', emoji: '🐚', x: 0.52, y: 0.88, size: 26,
         cover: { emoji: '🪨', size: 70, dx: -36, dy: -8 },
+      },
+    ],
+  },
+  {
+    id: 4,
+    title: 'Estação Espacial',
+    bg: [0x05010f, 0x1a0b3b],
+    scenery: 'space',
+    decoyCount: 30,
+    decoys: ['⭐', '🌟', '💫', '🌑', '🪐', '🛰️', '🌌', '🔧'],
+    ambient: { emoji: '✨', dir: 'up', count: 10 },
+    targets: [
+      {
+        id: 'alien', name: 'Alienígena', emoji: '👽', x: 0.16, y: 0.2, size: 30,
+        cover: { emoji: '🌑', size: 70, dx: 36, dy: 4 },
+      },
+      {
+        id: 'foguete', name: 'Foguete', emoji: '🚀', x: 0.8, y: 0.12, size: 30,
+        cover: { emoji: '🪐', size: 70, dx: -36, dy: 6 },
+      },
+      {
+        id: 'ovni', name: 'Disco voador', emoji: '🛸', x: 0.5, y: 0.36, size: 30,
+        cover: { emoji: '🛰️', size: 76, dx: 4, dy: -36 },
+      },
+      {
+        id: 'robo', name: 'Robô', emoji: '🤖', x: 0.86, y: 0.54, size: 30,
+        cover: { emoji: '🛰️', size: 74, dx: -38, dy: 4 },
+      },
+      {
+        id: 'cometa', name: 'Cometa', emoji: '☄️', x: 0.18, y: 0.6, size: 30,
+        cover: { emoji: '🌑', size: 72, dx: 36, dy: 4 },
+      },
+      {
+        id: 'telescopio', name: 'Telescópio', emoji: '🔭', x: 0.58, y: 0.84, size: 28,
+        cover: { emoji: '📡', size: 66, dx: -36, dy: -4 },
       },
     ],
   },
