@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
 import { bus } from './events'
 import type { Level } from '../levels/levels'
+import { drawScenery } from './scenery'
 
 export const GAME_W = 720
 export const GAME_H = 900
@@ -62,11 +63,12 @@ export default class GameScene extends Phaser.Scene {
     const g = this.add.graphics()
     g.fillGradientStyle(top, top, bottom, bottom, 1)
     g.fillRect(0, 0, GAME_W, GAME_H)
+    if (this.level.scenery) drawScenery(this, this.level.scenery)
   }
 
   private scatterDecoys() {
     const rand = mulberry32(this.level.id * 9973)
-    for (let i = 0; i < 70; i++) {
+    for (let i = 0; i < (this.level.decoyCount ?? 70); i++) {
       const emoji = this.level.decoys[Math.floor(rand() * this.level.decoys.length)]
       const size = 26 + rand() * 30
       this.add

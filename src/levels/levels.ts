@@ -37,22 +37,46 @@ export interface Level {
   /** emojis usados como "ruído" para esconder os alvos */
   decoys: string[]
   ambient?: Ambient
+  /** cenário desenhado por código (veja game/scenery.ts) */
+  scenery?: 'attic'
+  /** quantidade de emojis de ruído espalhados (padrão 70) */
+  decoyCount?: number
 }
 
 export const levels: Level[] = [
   {
     id: 1,
     title: 'Sótão Assombrado',
-    bg: [0x2b1055, 0x7597de],
+    bg: [0x1a0b2e, 0x3b2a5c],
+    scenery: 'attic',
+    decoyCount: 36,
     decoys: ['🍂', '🍄', '🪵', '🕸️', '🧪', '📜', '🌙', '⭐', '🪶'],
     ambient: { emoji: '✨', dir: 'up', count: 12 },
     targets: [
-      { id: 'chave', name: 'Chave', emoji: '🔑', x: 0.16, y: 0.22, size: 30 },
-      { id: 'vela', name: 'Vela', emoji: '🕯️', x: 0.78, y: 0.14, size: 32 },
-      { id: 'morcego', name: 'Morcego', emoji: '🦇', x: 0.5, y: 0.42, size: 30 },
-      { id: 'abobora', name: 'Abóbora', emoji: '🎃', x: 0.86, y: 0.6, size: 34 },
-      { id: 'fantasma', name: 'Fantasma', emoji: '👻', x: 0.22, y: 0.7, size: 32 },
-      { id: 'aranha', name: 'Aranha', emoji: '🕷️', x: 0.62, y: 0.86, size: 28 },
+      {
+        id: 'chave', name: 'Chave', emoji: '🔑', x: 0.16, y: 0.265, size: 30,
+        cover: { emoji: '📚', size: 56, dx: 36, dy: 6 },
+      },
+      {
+        id: 'vela', name: 'Vela', emoji: '🕯️', x: 0.78, y: 0.14, size: 32,
+        cover: { emoji: '🕸️', size: 64, dx: -34, dy: -6 },
+      },
+      {
+        id: 'morcego', name: 'Morcego', emoji: '🦇', x: 0.5, y: 0.42, size: 30,
+        cover: { emoji: '🕸️', size: 70, dx: 4, dy: -36 },
+      },
+      {
+        id: 'abobora', name: 'Abóbora', emoji: '🎃', x: 0.86, y: 0.6, size: 34,
+        cover: { emoji: '📦', size: 70, dx: -38, dy: 10 },
+      },
+      {
+        id: 'fantasma', name: 'Fantasma', emoji: '👻', x: 0.22, y: 0.7, size: 32,
+        cover: { emoji: '🪑', size: 84, dx: 38, dy: 6 },
+      },
+      {
+        id: 'aranha', name: 'Aranha', emoji: '🕷️', x: 0.62, y: 0.86, size: 28,
+        cover: { emoji: '🪵', size: 64, dx: 36, dy: 0 },
+      },
     ],
   },
   {
