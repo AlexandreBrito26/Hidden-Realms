@@ -698,17 +698,15 @@ function drawHalloween(scene: Phaser.Scene) {
   fog.setDepth(3)
   scene.tweens.add({ targets: fog, x: 60, duration: 9000, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' })
 
-  // morcegos distantes e adereços de rua
-  prop(scene, 300, 130, '🦇', 20, 0.55, -0.3)
-  prop(scene, 380, 200, '🦇', 16, 0.5, 0.2)
-  prop(scene, 600, 160, '🦇', 18, 0.5, -0.1)
-  prop(scene, 548, 502, '🎃', 26, 0.95)
-  prop(scene, 600, 505, '🎃', 20, 0.9)
+  // adereços de rua. Nada aqui repete um dos itens a encontrar (abóbora, morcego,
+  // doce, fantasma...), senão o jogador toca num enfeite e conta como erro.
+  prop(scene, 548, 502, '🕯️', 24, 0.9)
+  prop(scene, 600, 505, '🕯️', 20, 0.85)
   prop(scene, 330, 690, '🕸️', 36, 0.55)
   prop(scene, 20, 665, '🕸️', 40, 0.5, 1.2)
   prop(scene, 470, 735, '🪦', 30, 0.9)
-  prop(scene, 410, 740, '🎃', 28, 0.9)
-  prop(scene, 690, 740, '🍬', 18, 0.8)
+  prop(scene, 410, 740, '🍂', 28, 0.9)
+  prop(scene, 690, 740, '🍂', 20, 0.8)
   prop(scene, 215, 450, '🕯️', 22, 0.9)
   prop(scene, 100, 398, '🦉', 26, 0.9)
 }
