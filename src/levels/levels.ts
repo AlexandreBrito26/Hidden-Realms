@@ -41,6 +41,20 @@ export interface Level {
   scenery?: 'attic' | 'garden' | 'space' | 'halloween'
   /** quantidade de emojis de ruído espalhados (padrão 70) */
   decoyCount?: number
+  /** faixa de tamanho da fonte dos distratores em px (padrão [26, 56]) */
+  decoySize?: [number, number]
+  /** opacidade dos distratores (padrão 0.85) */
+  decoyAlpha?: number
+  /** áreas (0 a 1) onde os distratores podem aparecer; sem isso, a cena toda */
+  decoyZones?: Zone[]
+}
+
+/** retângulo normalizado (0 a 1) dentro da cena */
+export interface Zone {
+  x0: number
+  y0: number
+  x1: number
+  y1: number
 }
 
 export const levels: Level[] = [
@@ -49,41 +63,54 @@ export const levels: Level[] = [
     title: 'Cidade do Halloween',
     bg: [0x120826, 0x2e1450],
     scenery: 'halloween',
-    decoyCount: 110,
-    decoys: ['🕸️', '🪦', '🦴', '🕯️', '🌙', '🍭', '🍫', '🐀', '🦉', '🧿', '⚰️', '🍂', '🪲', '🐍', '🔮', '⭐', '🍎', '🧟'],
+    // poucos distratores, menores e só onde fazem sentido (prédios, rua, cemitério);
+    // o céu fica limpo e os alvos ficam em lugares coerentes com o cenário
+    decoyCount: 30,
+    decoySize: [20, 34],
+    decoyAlpha: 0.7,
+    decoyZones: [{ x0: 0, y0: 0.55, x1: 1, y1: 0.97 }],
+    decoys: ['🕸️', '🪦', '🦴', '🕯️', '🍂', '🦉', '🐀', '🪲', '⚰️', '🍭', '🍫', '🔮'],
     ambient: { emoji: '🍂', dir: 'down', count: 14 },
     targets: [
       {
-        id: 'abobora', name: 'Abóbora', emoji: '🎃', x: 0.9, y: 0.82, size: 22,
-        cover: { emoji: '🪦', size: 58, dx: -26, dy: 6 },
+        // calçada, junto ao poste da direita, atrás de uma lápide
+        id: 'abobora', name: 'Abóbora', emoji: '🎃', x: 0.93, y: 0.79, size: 26,
+        cover: { emoji: '🪦', size: 50, dx: -22, dy: 6 },
       },
       {
-        id: 'fantasma', name: 'Fantasma', emoji: '👻', x: 0.37, y: 0.46, size: 20,
-        cover: { emoji: '🕸️', size: 56, dx: 0, dy: -20 },
+        // na janela acesa da casa mal-assombrada, atrás de uma teia
+        id: 'fantasma', name: 'Fantasma', emoji: '👻', x: 0.736, y: 0.522, size: 24,
+        cover: { emoji: '🕸️', size: 42, dx: 0, dy: -14 },
       },
       {
-        id: 'morcego', name: 'Morcego', emoji: '🦇', x: 0.67, y: 0.07, size: 18,
-        cover: { emoji: '🌙', size: 48, dx: 20, dy: 4 },
+        // pendurado no galho da árvore seca, entre folhas
+        id: 'morcego', name: 'Morcego', emoji: '🦇', x: 0.222, y: 0.458, size: 24,
+        cover: { emoji: '🍂', size: 38, dx: 14, dy: -6 },
       },
       {
-        id: 'bruxa', name: 'Bruxa', emoji: '🧙', x: 0.52, y: 0.6, size: 22,
-        cover: { emoji: '🕸️', size: 60, dx: 14, dy: -8 },
+        // no telhado da casa, com uma coruja ao lado
+        id: 'bruxa', name: 'Bruxa', emoji: '🧙', x: 0.8, y: 0.39, size: 28,
+        cover: { emoji: '🦉', size: 40, dx: 20, dy: 6 },
       },
       {
-        id: 'vampiro', name: 'Vampiro', emoji: '🧛', x: 0.14, y: 0.55, size: 22,
-        cover: { emoji: '🦉', size: 50, dx: 22, dy: 6 },
+        // no cemitério, atrás de um caixão
+        id: 'vampiro', name: 'Vampiro', emoji: '🧛', x: 0.122, y: 0.844, size: 28,
+        cover: { emoji: '⚰️', size: 54, dx: 24, dy: 8 },
       },
       {
-        id: 'caveira', name: 'Caveira', emoji: '💀', x: 0.08, y: 0.9, size: 20,
-        cover: { emoji: '⚰️', size: 58, dx: 22, dy: 8 },
+        // ao pé da árvore seca, sob uma teia
+        id: 'caveira', name: 'Caveira', emoji: '💀', x: 0.156, y: 0.747, size: 24,
+        cover: { emoji: '🕸️', size: 40, dx: -12, dy: -8 },
       },
       {
-        id: 'doce', name: 'Doce', emoji: '🍬', x: 0.74, y: 0.5, size: 16,
-        cover: { emoji: '🕸️', size: 44, dx: -14, dy: -10 },
+        // na rua, ao lado de uma lápide
+        id: 'doce', name: 'Doce', emoji: '🍬', x: 0.611, y: 0.824, size: 22,
+        cover: { emoji: '🍂', size: 34, dx: 12, dy: -4 },
       },
       {
-        id: 'gato', name: 'Gato preto', emoji: '🐈‍⬛', x: 0.31, y: 0.82, size: 20,
-        cover: { emoji: '🪦', size: 52, dx: 24, dy: 4 },
+        // sentado entre as lápides do cemitério
+        id: 'gato', name: 'Gato preto', emoji: '🐈‍⬛', x: 0.375, y: 0.864, size: 26,
+        cover: { emoji: '🪦', size: 50, dx: -24, dy: 4 },
       },
     ],
   },

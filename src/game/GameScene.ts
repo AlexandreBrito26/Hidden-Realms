@@ -137,14 +137,29 @@ export default class GameScene extends Phaser.Scene {
 
   private scatterDecoys() {
     const rand = mulberry32(this.level.id * 9973)
+    const [minSize, maxSize] = this.level.decoySize ?? [26, 56]
+    const alpha = this.level.decoyAlpha ?? 0.85
+    const zones = this.level.decoyZones ?? [{ x0: 0, y0: 0, x1: 1, y1: 1 }]
+    const MIN_DIST_TO_TARGET = 30 // px: distrator não nasce em cima de um alvo
+
     for (let i = 0; i < (this.level.decoyCount ?? 70); i++) {
       const emoji = this.level.decoys[Math.floor(rand() * this.level.decoys.length)]
-      const size = 26 + rand() * 30
+      const size = minSize + rand() * (maxSize - minSize)
+      const zone = zones[Math.floor(rand() * zones.length)]
+      const x = (zone.x0 + rand() * (zone.x1 - zone.x0)) * GAME_W
+      const y = (zone.y0 + rand() * (zone.y1 - zone.y0)) * GAME_H
+
+      const nearTarget = this.level.targets.some(
+        (t) => Phaser.Math.Distance.Between(x, y, t.x * GAME_W, t.y * GAME_H) < MIN_DIST_TO_TARGET,
+      )
+      if (nearTarget) continue
+
       this.add
-        .text(rand() * GAME_W, rand() * GAME_H, emoji, { fontSize: `${size}px` })
+        .text(x, y, emoji, { fontSize: `${size}px` })
         .setOrigin(0.5)
         .setRotation((rand() - 0.5) * 1.2)
-        .setAlpha(0.85)
+        .setAlpha(alpha)
+        .setDepth(1)
     }
   }
 
