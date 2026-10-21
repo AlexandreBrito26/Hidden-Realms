@@ -5,10 +5,11 @@ import Phaser from 'phaser'
 const W = 720
 const H = 900
 
-export type SceneryKey = 'attic' | 'garden' | 'space'
+export type SceneryKey = 'attic' | 'garden' | 'space' | 'halloween'
 
 export function drawScenery(scene: Phaser.Scene, key: SceneryKey) {
-  if (key === 'attic') drawAttic(scene)
+  if (key === 'halloween') drawHalloween(scene)
+  else if (key === 'attic') drawAttic(scene)
   else if (key === 'garden') drawGarden(scene)
   else drawSpace(scene)
 }
@@ -539,4 +540,175 @@ function drawSpace(scene: Phaser.Scene) {
       })
     },
   })
+}
+
+// Cidade de Halloween à noite: lua, prédios com janelas acesas, casa mal-assombrada,
+// árvore seca, cemitério, cerca e rua com postes de luz.
+function drawHalloween(scene: Phaser.Scene) {
+  const r = rng(1031)
+  const g = scene.add.graphics()
+
+  // estrelas
+  for (let i = 0; i < 70; i++) {
+    g.fillStyle(0xffffff, 0.25 + r() * 0.6)
+    g.fillCircle(r() * W, r() * 330, 0.8 + r() * 1.4)
+  }
+
+  // lua grande com brilho laranja e crateras
+  const mx = 128
+  const my = 118
+  for (const [rad, a] of [[110, 0.05], [88, 0.08], [70, 0.12]]) {
+    g.fillStyle(0xffa63d, a)
+    g.fillCircle(mx, my, rad)
+  }
+  g.fillStyle(0xffe9b0, 1)
+  g.fillCircle(mx, my, 54)
+  g.fillStyle(0xe3c98a, 0.7)
+  for (const [dx, dy, cr] of [[-16, -10, 9], [14, 12, 12], [-4, 24, 6], [22, -20, 5]]) {
+    g.fillCircle(mx + dx, my + dy, cr)
+  }
+
+  // nuvens finas na frente da lua
+  g.fillStyle(0x2a1647, 0.7)
+  g.fillEllipse(180, 130, 260, 16)
+  g.fillEllipse(520, 90, 220, 14)
+  g.fillEllipse(430, 190, 300, 14)
+
+  // prédios distantes (silhueta) com janelas acesas
+  const building = (x: number, w: number, top: number, base: number, color: number, lit: number) => {
+    g.fillStyle(color, 1)
+    g.fillRect(x, top, w, base - top)
+    // telhado: plano, em ponta ou com chaminé
+    const kind = Math.floor(r() * 3)
+    if (kind === 1) g.fillTriangle(x - 4, top, x + w + 4, top, x + w / 2, top - 34 - r() * 20)
+    if (kind === 2) g.fillRect(x + w * 0.65, top - 22, 12, 22)
+    g.fillStyle(0xffc857, 1)
+    for (let wy = top + 14; wy < base - 18; wy += 24) {
+      for (let wx = x + 9; wx < x + w - 14; wx += 20) {
+        if (r() < lit) {
+          g.fillStyle(r() < 0.25 ? 0xff8a3d : 0xffc857, 0.9)
+          g.fillRect(wx, wy, 9, 13)
+        } else {
+          g.fillStyle(0x000000, 0.25)
+          g.fillRect(wx, wy, 9, 13)
+        }
+      }
+    }
+  }
+  let bx = -10
+  while (bx < W) {
+    const w = 54 + Math.floor(r() * 50)
+    building(bx, w, 380 + Math.floor(r() * 120), 640, 0x1a0e30, 0.35)
+    bx += w + 4
+  }
+  bx = 20
+  while (bx < W) {
+    const w = 64 + Math.floor(r() * 56)
+    building(bx, w, 470 + Math.floor(r() * 90), 700, 0x241340, 0.45)
+    bx += w + 10
+  }
+
+  // casa mal-assombrada em cima da colina (direita)
+  g.fillStyle(0x140a24, 1)
+  g.fillEllipse(560, 520, 420, 120)
+  const hx = 500
+  const hy = 380
+  g.fillStyle(0x1d0f33, 1)
+  g.fillRect(hx, hy, 150, 130)
+  g.fillRect(hx + 118, hy - 70, 40, 70) // torre
+  g.fillTriangle(hx - 10, hy, hx + 160, hy, hx + 75, hy - 56)
+  g.fillTriangle(hx + 112, hy - 70, hx + 164, hy - 70, hx + 138, hy - 120)
+  g.fillStyle(0xffb347, 1)
+  for (const [dx, dy] of [[20, 24], [92, 24], [20, 76], [128, 18]]) g.fillRect(hx + dx, hy + dy, 20, 28)
+  g.fillStyle(0x000000, 0.4)
+  g.fillRect(hx + 62, hy + 74, 28, 56) // porta
+  g.lineStyle(2, 0x000000, 0.5)
+  for (const dx of [20, 92, 20]) g.lineBetween(hx + dx + 10, hy + 24, hx + dx + 10, hy + 52)
+
+  // árvore seca (esquerda) com galhos
+  g.lineStyle(16, 0x0e0719, 1)
+  g.lineBetween(70, 660, 76, 470)
+  g.lineStyle(10, 0x0e0719, 1)
+  g.lineBetween(76, 500, 20, 430)
+  g.lineBetween(76, 490, 150, 420)
+  g.lineBetween(74, 560, 20, 520)
+  g.lineBetween(76, 540, 140, 500)
+  g.lineStyle(5, 0x0e0719, 1)
+  g.lineBetween(150, 420, 190, 400)
+  g.lineBetween(150, 420, 170, 380)
+  g.lineBetween(20, 430, 30, 390)
+  g.lineBetween(20, 430, -10, 410)
+  g.lineBetween(140, 500, 190, 490)
+
+  // rua, calçada e cerca
+  g.fillStyle(0x15091f, 1)
+  g.fillRect(0, 700, W, H - 700)
+  g.fillStyle(0x3a2a52, 1)
+  g.fillRect(0, 700, W, 26) // calçada
+  g.lineStyle(2, 0x000000, 0.35)
+  for (let x = 0; x < W; x += 60) g.lineBetween(x, 700, x, 726)
+  g.fillStyle(0x2b1c3d, 1)
+  g.fillRect(0, 760, W, 8)
+  g.fillStyle(0xe8d9a0, 0.5)
+  for (let x = 20; x < W; x += 110) g.fillRect(x, 830, 56, 6) // faixa da rua
+
+  // cerca de ferro com pontas
+  g.lineStyle(3, 0x0a0512, 1)
+  g.lineBetween(0, 672, W, 672)
+  g.lineBetween(0, 696, W, 696)
+  for (let x = 6; x < W; x += 22) {
+    g.lineBetween(x, 650, x, 700)
+    g.fillStyle(0x0a0512, 1)
+    g.fillTriangle(x - 4, 654, x + 4, 654, x, 640)
+  }
+
+  // postes de luz com halo
+  for (const lx of [250, 660]) {
+    g.lineStyle(7, 0x0a0512, 1)
+    g.lineBetween(lx, 720, lx, 560)
+    g.lineBetween(lx, 560, lx + 22, 552)
+    g.fillStyle(0xffd27a, 0.1)
+    g.fillCircle(lx + 22, 560, 62)
+    g.fillStyle(0xffd27a, 0.18)
+    g.fillCircle(lx + 22, 560, 34)
+    g.fillStyle(0xffe6a8, 1)
+    g.fillCircle(lx + 22, 560, 8)
+  }
+
+  // cemitério (canto inferior esquerdo)
+  g.fillStyle(0x1e1230, 1)
+  g.fillEllipse(130, 800, 320, 70)
+  for (const [tx, ty, kind] of [[50, 770, 0], [120, 786, 1], [190, 768, 0], [250, 792, 2]]) {
+    g.fillStyle(0x5a4a72, 1)
+    if (kind === 0) {
+      g.fillRoundedRect(tx - 14, ty - 34, 28, 40, { tl: 14, tr: 14, bl: 0, br: 0 })
+    } else if (kind === 1) {
+      g.fillRect(tx - 5, ty - 40, 10, 46)
+      g.fillRect(tx - 16, ty - 28, 32, 9)
+    } else {
+      g.fillRect(tx - 15, ty - 30, 30, 36)
+    }
+  }
+
+  // neblina baixa que se move devagar
+  const fog = scene.add.graphics()
+  fog.fillStyle(0xbfa8ff, 0.1)
+  fog.fillEllipse(180, 740, 420, 50)
+  fog.fillEllipse(520, 820, 480, 56)
+  fog.setDepth(3)
+  scene.tweens.add({ targets: fog, x: 60, duration: 9000, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' })
+
+  // morcegos distantes e adereços de rua
+  prop(scene, 300, 130, '🦇', 20, 0.55, -0.3)
+  prop(scene, 380, 200, '🦇', 16, 0.5, 0.2)
+  prop(scene, 600, 160, '🦇', 18, 0.5, -0.1)
+  prop(scene, 548, 502, '🎃', 26, 0.95)
+  prop(scene, 600, 505, '🎃', 20, 0.9)
+  prop(scene, 330, 690, '🕸️', 36, 0.55)
+  prop(scene, 20, 665, '🕸️', 40, 0.5, 1.2)
+  prop(scene, 470, 735, '🪦', 30, 0.9)
+  prop(scene, 410, 740, '🎃', 28, 0.9)
+  prop(scene, 690, 740, '🍬', 18, 0.8)
+  prop(scene, 215, 450, '🕯️', 22, 0.9)
+  prop(scene, 100, 398, '🦉', 26, 0.9)
 }

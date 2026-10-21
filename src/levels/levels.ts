@@ -38,7 +38,7 @@ export interface Level {
   decoys: string[]
   ambient?: Ambient
   /** cenário desenhado por código (veja game/scenery.ts) */
-  scenery?: 'attic' | 'garden' | 'space'
+  scenery?: 'attic' | 'garden' | 'space' | 'halloween'
   /** quantidade de emojis de ruído espalhados (padrão 70) */
   decoyCount?: number
 }
@@ -46,36 +46,44 @@ export interface Level {
 export const levels: Level[] = [
   {
     id: 1,
-    title: 'Sótão Assombrado',
-    bg: [0x1a0b2e, 0x3b2a5c],
-    scenery: 'attic',
-    decoyCount: 36,
-    decoys: ['🍂', '🍄', '🪵', '🕸️', '🧪', '📜', '🌙', '⭐', '🪶'],
-    ambient: { emoji: '✨', dir: 'up', count: 12 },
+    title: 'Cidade do Halloween',
+    bg: [0x120826, 0x2e1450],
+    scenery: 'halloween',
+    decoyCount: 110,
+    decoys: ['🕸️', '🪦', '🦴', '🕯️', '🌙', '🍭', '🍫', '🐀', '🦉', '🧿', '⚰️', '🍂', '🪲', '🐍', '🔮', '⭐', '🍎', '🧟'],
+    ambient: { emoji: '🍂', dir: 'down', count: 14 },
     targets: [
       {
-        id: 'chave', name: 'Chave', emoji: '🔑', x: 0.16, y: 0.265, size: 30,
-        cover: { emoji: '📚', size: 56, dx: 36, dy: 6 },
+        id: 'abobora', name: 'Abóbora', emoji: '🎃', x: 0.9, y: 0.82, size: 22,
+        cover: { emoji: '🪦', size: 58, dx: -26, dy: 6 },
       },
       {
-        id: 'vela', name: 'Vela', emoji: '🕯️', x: 0.78, y: 0.14, size: 32,
-        cover: { emoji: '🕸️', size: 64, dx: -34, dy: -6 },
+        id: 'fantasma', name: 'Fantasma', emoji: '👻', x: 0.37, y: 0.46, size: 20,
+        cover: { emoji: '🕸️', size: 56, dx: 0, dy: -20 },
       },
       {
-        id: 'morcego', name: 'Morcego', emoji: '🦇', x: 0.5, y: 0.42, size: 30,
-        cover: { emoji: '🕸️', size: 70, dx: 4, dy: -36 },
+        id: 'morcego', name: 'Morcego', emoji: '🦇', x: 0.67, y: 0.07, size: 18,
+        cover: { emoji: '🌙', size: 48, dx: 20, dy: 4 },
       },
       {
-        id: 'abobora', name: 'Abóbora', emoji: '🎃', x: 0.86, y: 0.6, size: 34,
-        cover: { emoji: '📦', size: 70, dx: -38, dy: 10 },
+        id: 'bruxa', name: 'Bruxa', emoji: '🧙', x: 0.52, y: 0.6, size: 22,
+        cover: { emoji: '🕸️', size: 60, dx: 14, dy: -8 },
       },
       {
-        id: 'fantasma', name: 'Fantasma', emoji: '👻', x: 0.22, y: 0.7, size: 32,
-        cover: { emoji: '🪑', size: 84, dx: 38, dy: 6 },
+        id: 'vampiro', name: 'Vampiro', emoji: '🧛', x: 0.14, y: 0.55, size: 22,
+        cover: { emoji: '🦉', size: 50, dx: 22, dy: 6 },
       },
       {
-        id: 'aranha', name: 'Aranha', emoji: '🕷️', x: 0.62, y: 0.86, size: 28,
-        cover: { emoji: '🪵', size: 64, dx: 36, dy: 0 },
+        id: 'caveira', name: 'Caveira', emoji: '💀', x: 0.08, y: 0.9, size: 20,
+        cover: { emoji: '⚰️', size: 58, dx: 22, dy: 8 },
+      },
+      {
+        id: 'doce', name: 'Doce', emoji: '🍬', x: 0.74, y: 0.5, size: 16,
+        cover: { emoji: '🕸️', size: 44, dx: -14, dy: -10 },
+      },
+      {
+        id: 'gato', name: 'Gato preto', emoji: '🐈‍⬛', x: 0.31, y: 0.82, size: 20,
+        cover: { emoji: '🪦', size: 52, dx: 24, dy: 4 },
       },
     ],
   },

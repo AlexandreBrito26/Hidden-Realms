@@ -6,6 +6,10 @@ import { drawScenery } from './scenery'
 export const GAME_W = 720
 export const GAME_H = 900
 
+const MIN_ZOOM = 1
+const MAX_ZOOM = 3
+const TAP_MAX_MOVE = 12 // px: acima disso o toque vira arrasto, não clique
+
 interface TargetObj {
   id: string
   text: Phaser.GameObjects.Text
@@ -28,6 +32,8 @@ export default class GameScene extends Phaser.Scene {
   private level!: Level
   private targets: TargetObj[] = []
   private onHint = () => this.showHint()
+  private lastPinch: { dist: number; mx: number; my: number } | null = null
+  private gestureMoved = false // houve pinça/arrasto neste gesto (não é um toque)
 
   constructor() {
     super('Game')
@@ -44,11 +50,19 @@ export default class GameScene extends Phaser.Scene {
     this.spawnAmbient()
     this.placeTargets()
 
-    // toque que não pegou em nenhum alvo = erro
+    this.setupZoom()
+
+    // toque que não pegou em nenhum alvo = erro (arrastos e pinças não contam)
     this.input.on(
-      'pointerdown',
+      'pointerup',
       (pointer: Phaser.Input.Pointer, over: Phaser.GameObjects.GameObject[]) => {
-        if (over.length === 0) this.showMiss(pointer.x, pointer.y)
+        if (over.length === 0 && this.isTap(pointer)) {
+          this.showMiss(pointer.worldX, pointer.worldY)
+        }
+        if (!this.input.manager.pointers.some((p) => p.isDown)) {
+          this.gestureMoved = false
+          this.lastPinch = null
+        }
       },
     )
 
@@ -56,6 +70,61 @@ export default class GameScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       bus.off('hint', this.onHint)
     })
+  }
+
+  private isTap(pointer: Phaser.Input.Pointer) {
+    return !this.gestureMoved && pointer.getDistance() < TAP_MAX_MOVE
+  }
+
+  // Zoom: pinça com dois dedos, arrastar com um dedo (quando ampliado) e
+  // roda do mouse no desktop.
+  private setupZoom() {
+    const cam = this.cameras.main
+    cam.setBounds(0, 0, GAME_W, GAME_H)
+    this.input.addPointer(1) // habilita o segundo dedo
+
+    this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
+      const { pointer1: p1, pointer2: p2 } = this.input
+
+      if (p1.isDown && p2.isDown) {
+        const dist = Phaser.Math.Distance.Between(p1.x, p1.y, p2.x, p2.y)
+        const mx = (p1.x + p2.x) / 2
+        const my = (p1.y + p2.y) / 2
+        const prev = this.lastPinch
+        this.lastPinch = { dist, mx, my }
+        this.gestureMoved = true
+        if (prev && prev.dist > 0) {
+          this.zoomAround(prev.mx, prev.my, mx, my, cam.zoom * (dist / prev.dist))
+        }
+        return
+      }
+
+      // um dedo/mouse arrastando a imagem ampliada
+      if (!pointer.isDown || cam.zoom <= MIN_ZOOM || this.lastPinch) return
+      if (!this.gestureMoved && pointer.getDistance() < TAP_MAX_MOVE) return
+      this.gestureMoved = true
+      cam.scrollX -= (pointer.x - pointer.prevPosition.x) / cam.zoom
+      cam.scrollY -= (pointer.y - pointer.prevPosition.y) / cam.zoom
+    })
+
+    this.input.on(
+      'wheel',
+      (pointer: Phaser.Input.Pointer, _o: unknown, _dx: number, dy: number) => {
+        this.zoomAround(pointer.x, pointer.y, pointer.x, pointer.y, cam.zoom * (dy > 0 ? 0.9 : 1.1))
+      },
+    )
+  }
+
+  // aplica o zoom mantendo o ponto do mundo sob (prevX, prevY) em (newX, newY)
+  private zoomAround(prevX: number, prevY: number, newX: number, newY: number, zoom: number) {
+    const cam = this.cameras.main
+    const cx = GAME_W / 2
+    const cy = GAME_H / 2
+    const wx = cam.scrollX + cx + (prevX - cx) / cam.zoom
+    const wy = cam.scrollY + cy + (prevY - cy) / cam.zoom
+    const z = Phaser.Math.Clamp(zoom, MIN_ZOOM, MAX_ZOOM)
+    cam.setZoom(z)
+    cam.setScroll(wx - cx - (newX - cx) / z, wy - cy - (newY - cy) / z)
   }
 
   private drawBackground() {
@@ -131,7 +200,9 @@ export default class GameScene extends Phaser.Scene {
       }
 
       const target: TargetObj = { id: item.id, text, found: false }
-      text.on('pointerdown', () => this.markFound(target))
+      text.on('pointerup', (pointer: Phaser.Input.Pointer) => {
+        if (this.isTap(pointer)) this.markFound(target)
+      })
       this.targets.push(target)
     }
   }

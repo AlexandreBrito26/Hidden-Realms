@@ -39,7 +39,8 @@ html, body, #root {
   flex: 1;
   min-height: 0;
 }
-.game-canvas { width: 100%; height: 100%; }
+.game-canvas { width: 100%; height: 100%; touch-action: none; }
+.game-canvas canvas { touch-action: none; }
 
 .tray {
   display: flex;

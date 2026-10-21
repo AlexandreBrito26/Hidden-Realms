@@ -8,6 +8,8 @@ export default function App() {
   const [found, setFound] = useState<string[]>([])
   const [hints, setHints] = useState(3)
   const [misses, setMisses] = useState(0)
+  // dicas só são liberadas depois de passar a primeira fase
+  const [hintsUnlocked, setHintsUnlocked] = useState(false)
 
   const level = levels[levelIdx]
   const done = found.length === level.targets.length
@@ -25,13 +27,14 @@ export default function App() {
   }, [])
 
   const goTo = (i: number) => {
+    if (done) setHintsUnlocked(true)
     setLevelIdx(i)
     setFound([])
     setMisses(0)
   }
 
   const useHint = () => {
-    if (hints <= 0 || done) return
+    if (!hintsUnlocked || hints <= 0 || done) return
     setHints((h) => h - 1)
     bus.emit('hint')
   }
@@ -72,8 +75,8 @@ export default function App() {
             </li>
           ))}
         </ul>
-        <button className="hint" onClick={useHint} disabled={hints <= 0 || done}>
-          💡 Dica ({hints})
+        <button className="hint" onClick={useHint} disabled={!hintsUnlocked || hints <= 0 || done}>
+          {hintsUnlocked ? `💡 Dica (${hints})` : '🔒 Dica'}
         </button>
       </footer>
     </div>
